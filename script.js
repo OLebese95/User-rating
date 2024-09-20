@@ -160,12 +160,51 @@ async function fetchTestimonials() {
     }
 }
 
+let ratingValue;
+
+// Add event listener for each star
+document.querySelectorAll('.fa-star').forEach(star => {
+    star.addEventListener('click', function() {
+        ratingValue = this.getAttribute('data-value'); // Get clicked star's value
+        document.getElementById('rating-value').value = ratingValue; // Update the hidden input with the rating
+
+        // Clear all previous stars
+        clearStars();
+
+        // Highlight all stars up to the clicked one
+        highlightStars(ratingValue);
+    });
+});
+
+// Function to highlight the stars up to the selected rating
+function highlightStars(value) {
+    document.querySelectorAll('.fa-star').forEach(star => {
+        if (parseInt(star.getAttribute('data-value')) <= value) {
+            star.classList.add('selected'); // Add 'selected' class to highlight star
+            star.style.color = 'gold'; // Change the color to gold
+        }
+    });
+}
+
+// Function to clear all star highlights
+function clearStars() {
+    document.querySelectorAll('.fa-star').forEach(star => {
+        star.classList.remove('selected'); // Remove the 'selected' class
+        star.style.color = ''; // Reset the star color
+    });
+}
+
 // Add event listener to the form
 document.getElementById('testimonial-form').addEventListener('submit', async (event) => {
     event.preventDefault();
     const name = document.getElementById('name').value;
     const comment = document.getElementById('comment').value;
-    const rating = parseInt(document.getElementById('rating').value);
+    const rating = ratingValue;
+
+    if (!rating) {
+      alert("Please select a star rating.");
+      return;
+    }
 
     // Add a new testimonial to Firestore
     try {
@@ -173,6 +212,7 @@ document.getElementById('testimonial-form').addEventListener('submit', async (ev
         fetchTestimonials(); // Update testimonials after submission
         // Clear the form
         document.getElementById('testimonial-form').reset();
+        clearStars(); // Clear stars after submission
     } catch (error) {
         console.error("Error adding testimonial: ", error);
     }
@@ -180,34 +220,4 @@ document.getElementById('testimonial-form').addEventListener('submit', async (ev
 
 // Load testimonials on page load
 fetchTestimonials();
-
-// rating
-document.addEventListener('DOMContentLoaded', () => {
-  const stars = document.querySelectorAll('#rating .fa');
-  const ratingInput = document.getElementById('rating-value');
-
-  stars.forEach((star, index) => {
-    
-      star.addEventListener('click', () => {
-          console.log(`Star ${index + 1} clicked`);
-          console.log(`Current rating: ${ratingInput.value}`);
-
-          const value = index + 1; 
-
-          if (ratingInput.value == value) {
-              stars.forEach(s => s.classList.remove('checked')); 
-              ratingInput.value = ''; 
-          } else {
-              stars.forEach((s, idx) => {
-                  if (idx < value) {
-                      s.classList.add('checked'); 
-                  } else {
-                      s.classList.remove('checked'); 
-                  }
-              });
-              ratingInput.value = value; 
-          }
-      });
-  });
-});
 

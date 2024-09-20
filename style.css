@@ -797,6 +797,10 @@ p {
     color: gold; 
 }
 
+.rating {
+    color: gold;
+    font-size: 40px;
+}
 
 #testimonial-form button {
     margin-top: 2rem;
